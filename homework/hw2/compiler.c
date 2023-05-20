@@ -1,3 +1,4 @@
+//參考老師範例跟檔案，修改了while函數
 #include <assert.h>
 #include "compiler.h"
 
