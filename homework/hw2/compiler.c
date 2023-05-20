@@ -10,7 +10,7 @@ int tempIdx = 0, labelIdx = 0;
 
 #define nextTemp() (tempIdx++)
 #define nextLabel() (labelIdx++)
-// #define emit printf
+#define emit printf
 
 
 int isTempIr = 0;
@@ -128,25 +128,26 @@ void WHILE() {
   emit("(L%d)\n", whileEnd);
 }
 
-// if (EXP) STMT (else STMT)?
-void IF() {
-  skip("if");
+// DO_WHILE = do BLOCK while (E);
+void DO_WHILE() {
+  int doBegin = nextLabel();
+  int doEnd = nextLabel();
+  emit("(L%d)\n", doBegin);
+  skip("do");
+  BLOCK();
+  skip("while");
   skip("(");
   E();
   skip(")");
-  STMT();
-  if (isNext("else")) {
-    skip("else");
-    STMT();
-  }
+  skip(";");
+  emit("if T%d goto L%d\n", tempIdx - 1, doBegin);
+  emit("(L%d)\n", doEnd);
 }
 
-// STMT = WHILE | BLOCK | ASSIGN
+// STMT = DO_WHILE | BLOCK | ASSIGN
 void STMT() {
-  if (isNext("while"))
-    return WHILE();
-  else if (isNext("if"))
-    IF();
+  if (isNext("do"))
+    return DO_WHILE();
   else if (isNext("{"))
     BLOCK();
   else
